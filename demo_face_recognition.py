@@ -23,8 +23,8 @@ while True:
 
     frame = frame[:, :, 0:3]
     boxes, scores = face_detector.detect(frame)
-    face_boxes = boxes[np.argwhere(scores>0.3).reshape(-1)]
-    face_scores = scores[np.argwhere(scores>0.3).reshape(-1)]
+    face_boxes = boxes[np.argwhere(scores>0.7).reshape(-1)]
+    face_scores = scores[np.argwhere(scores>0.7).reshape(-1)]
     print('Detected_FaceNum: %d' % len(face_boxes))
 
     if len(face_boxes) > 0:
@@ -50,8 +50,7 @@ while True:
     str = 'FPS: %2.3f' % fps
     text_fps_x = len(frame[0]) - 150
     text_fps_y = 20
-    cv2.putText(frame, str, (text_fps_x, text_fps_y),
-                cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 0, 0), thickness=1, lineType=2)
+    cv2.putText(frame, str, (text_fps_x, text_fps_y), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 0, 0), thickness=1, lineType=2)
 
     cv2.imshow('Video', frame)
 
