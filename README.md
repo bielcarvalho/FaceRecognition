@@ -1,20 +1,24 @@
 # Tensorflow Face Recognition
 
-[https://github.com/hschao/face-recognition](Original Git)
+### Based on
 
-##### Detector CNN:
-[https://github.com/ipazc/mtcnn](MTCNN Git)<br>
-[https://arxiv.org/pdf/1604.02878](MTCNN Article)
+##### Original Detector (SSD):
+Git: https://github.com/hschao/face-recognition<br>
+Article: https://arxiv.org/abs/1512.02325
+
+##### Detector MTCNN:
+MTCNN Git: https://github.com/ipazc/mtcnn<br>
+MTCNN Article: https://arxiv.org/pdf/1604.02878
 
 ##### Descriptor CNN treinado com banco de imagens VGGFace2: 
-[https://github.com/davidsandberg/facenet](Facenet Git)
-[https://arxiv.org/abs/1503.03832](Facenet Article)
+Facenet Git: https://github.com/davidsandberg/facenet<br>
+Facenet Article: https://arxiv.org/abs/1503.03832
 
 ## Pipeline
 Image -> FaceDetection -> CroppedFace -> FaceEmbeddings -> Descriptor(512D) -> FaceClassifier -> Name
 
 ## Hyper-parameter Tuning (scikit-optimizer):
-[https://github.com/scikit-optimize/scikit-optimize/issues/762](Git Issue)
+https://github.com/scikit-optimize/scikit-optimize/issues/762 (Git Issue)<br>
 Para funcionar com a ultima versao do scikit-learn eh necessario remover do __init__ de BayesSearchCV, o trecho que repassa "fit_params=fit_params" para "super", e inserir "self.fit_params = fit_params" abaixo de "self._check_search_space(self.search_spaces)"
 Ou seja, substituir
 
