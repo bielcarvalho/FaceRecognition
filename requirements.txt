@@ -1,3 +1,8 @@
+mtcnn
+scikit-optimize
+numpy
+pandas
+tqdm
 tensorflow==1.14.0
 opencv-python
 sklearn
