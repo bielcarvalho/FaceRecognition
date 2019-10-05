@@ -1,21 +1,15 @@
-from os import path, makedirs
 import pickle
-import numpy as np
+from os import path, makedirs
+
 from sklearn import neighbors, svm, ensemble, neural_network
-from sklearn.metrics import make_scorer, classification_report, confusion_matrix, f1_score, precision_score
+from sklearn.metrics import make_scorer, classification_report, f1_score
 from sklearn.model_selection import StratifiedKFold, train_test_split
+from sklearn.tree import DecisionTreeClassifier
 from skopt import BayesSearchCV
 from skopt.space import Integer, Real, Categorical
 
 BASE_DIR = path.dirname(__file__)
 PATH_TO_PKL = 'trained_classifier.pkl'
-
-models = [
-    "random_forest",
-    "knn",
-    "svm",
-    "mlp"
-]
 
 
 class FaceClassifier:
@@ -35,17 +29,17 @@ class FaceClassifier:
 
         if model == "svm":
             parameter_space = {
-                'C': (0.0001, 10000.0),
+                'C': (0.001, 1000000.0),
                 'gamma': (0.00001, 1.0),
-                'degree': (1, 9),  # integer valued parameter
-                'kernel': ['linear', 'poly', 'rbf', 'sigmoid', 'precomputed'],  # categorical parameter
+                'degree': (1, 9),
+                'kernel': ['linear', 'poly', 'rbf', 'sigmoid'],
                 'tol': (0.00001, 0.1)
             }
             clf = svm.SVC()
 
         elif model == "knn":
             parameter_space = {
-                'n_neighbors': (1, 2*images_per_person),
+                'n_neighbors': (1, 2 * images_per_person),
                 'weights': ['uniform', 'distance'],
                 'algorithm': ['auto', 'ball_tree', 'kd_tree', 'brute'],
                 'leaf_size': (5, 150),
@@ -58,7 +52,7 @@ class FaceClassifier:
                 # 'layer1': Integer(5, 100),
                 # 'layer2': Integer(0, 100),
                 # 'layer3': Integer(0, 100),
-                'hidden_layer_sizes': Integer(5, 100),
+                'hidden_layer_sizes': Integer(10, 150),
                 # numpy.arange(0.005, 0.1, 0.005)
                 'activation': Categorical(['relu', 'tanh', 'logistic']),
                 'solver': Categorical(['adam', 'sgd', 'lbfgs']),
@@ -69,44 +63,59 @@ class FaceClassifier:
             }
             clf = neural_network.MLPClassifier()
 
+        elif model == "dtree":
+            parameter_space = {
+                'criterion': ['gini', 'entropy'],
+                'splitter': ['best', 'random'],
+                'min_samples_split': (2, 50),
+                'min_samples_leaf': (1, 20),
+                # 'max_depth': (50, 500),
+                # 'max_leaf_nodes': (50, 500),
+                # 'min_impurity_decrease': (1e-10, 1e-6)
+                'max_features': ["auto", "sqrt", "log2", None],
+                # 'max_features': (0.1, 0.9)
+            }
+            clf = DecisionTreeClassifier()
         else:
             parameter_space = {
-                'n_estimators': (5, 180),
+                'n_estimators': (50, 200),
                 'criterion': ['gini', 'entropy'],
-                'min_samples_split': (2, 20),
-                'min_samples_leaf': (1, 20),
-                'max_depth': (2, 150)
-                # 'max_features': [int,]
+                # 'min_samples_split': (2, 20),
+                # 'min_samples_leaf': (1, 20),
+                # 'max_depth': (2, 150)
+                # 'max_features': (0.1, 0.9)
             }
             clf = ensemble.RandomForestClassifier()
         score = make_scorer(f1_score, average='weighted')
-        clf = BayesSearchCV(estimator=clf, search_spaces=parameter_space, n_iter=60, cv=cv,
+        clf = BayesSearchCV(estimator=clf, search_spaces=parameter_space, n_iter=50, cv=cv,
                             scoring=score, verbose=True, n_jobs=-1)
         clf.fit(X, y)
         self.model = clf.best_estimator_
         return clf.best_score_
 
     def train(self, X, y, model='knn', num_sets=10, k_fold=False, hyperparameter_tuning=True, save_model_path=None,
-              images_per_person=10):
+              images_per_person=10, num_people=None):
 
         if hyperparameter_tuning is True:
-            cv = StratifiedKFold(n_splits=num_sets)
+            cv = StratifiedKFold(n_splits=num_sets, shuffle=True)
             score = self.parameter_tuning(model, cv, images_per_person, X, y)
         elif k_fold is True:
             pass
         else:
             if num_sets > 1:
-                X, X_test, y, y_test = train_test_split(X, y, stratify=y, test_size=1/num_sets)
+                X, X_test, y, y_test = train_test_split(X, y, stratify=y, test_size=1 / num_sets)
             if model == 'knn':
                 self.model = neighbors.KNeighborsClassifier(n_neighbors=10, weights='distance', p=9, leaf_size=90)
+            elif model == "dtree":
+                self.model = DecisionTreeClassifier(criterion='entropy', max_depth=140)
             elif model == 'random_forest':
-                self.model = ensemble.RandomForestClassifier(n_estimators=140, criterion='entropy')
+                self.model = ensemble.RandomForestClassifier(n_estimators=150, criterion='entropy', max_depth=140)
             elif model == 'mlp':
                 self.model = neural_network.MLPClassifier(activation='tanh', hidden_layer_sizes=20,
                                                           learning_rate='adaptive', learning_rate_init=0.104,
                                                           max_iter=10000, alpha=0.029, solver='adam')
             elif model == 'svm':
-                self.model = svm.SVC(kernel='rbf', C=1000.0)
+                self.model = svm.SVC(kernel='rbf', C=10000.0)
             else:  # svm
                 self.model = svm.SVC(kernel='linear', probability=True)
 
@@ -128,10 +137,12 @@ class FaceClassifier:
             parameters = self.model.get_params()
             if not path.exists(parameters_csv):
                 file = open(parameters_csv, "w")
-                file.write(';'.join(param_name for param_name in parameters.keys()) + ";Score\n")
+                file.write(';'.join(param_name for param_name in parameters.keys()) +
+                           ";images_per_person;number_people;number_sets;score\n")
             else:
                 file = open(parameters_csv, 'a')
-            file.write(';'.join(str(param_value) for param_value in list(parameters.values())) + f";{str(score)}\n")
+            file.write(';'.join(str(param_value) for param_value in list(parameters.values())) +
+                       f";{images_per_person};{num_people};{num_sets};{score}\n")
             file.close()
 
     def classify(self, descriptor):
@@ -139,7 +150,9 @@ class FaceClassifier:
             print('Train the model before doing classifications.')
             return
         pred = self.model.predict([descriptor])
-        prob = self.model.predict_proba([descriptor])
 
-        return pred[0], round(float(np.ravel(prob)[0]), 2)
+        # A maior probabilidade era sempre 1 (talvez nao seja possivel usar para encontrar desconhecidos)
+        # prob = np.ravel(self.model.predict_proba([descriptor]))
+        # prob[::-1].sort()
 
+        return pred[0]#, round(prob[0], 2)

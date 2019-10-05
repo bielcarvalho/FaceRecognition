@@ -1,10 +1,11 @@
-import cv2
 import time
 
+import cv2
 import numpy as np
+
+from classifier.FaceClassifier import FaceClassifier
 from detection.FaceDetector import FaceDetector
 from embeddings.FaceEmbeddings import FaceEmbeddings
-from classifier.FaceClassifier import FaceClassifier
 
 model = input("Choose a model> ")
 # model = "knn"
@@ -30,34 +31,41 @@ while True:
     frame = frame[:, :, 0:3]
 
     boxes, scores = face_detector.detect(frame)
-    # face_boxes = boxes[np.argwhere(scores>0.5).reshape(-1)]
-    # face_scores = scores[np.argwhere(scores>0.5).reshape(-1)]
-    # print('Detected_FaceNum: %d' % len(face_boxes))
 
-    if len(scores) > 0:
-        for i in range(len(scores)):
-            if scores[i] < 0.5:
-                continue
-            x1, y1, width, height = boxes[i]
-            x1, y1 = abs(x1), abs(y1)
-            x2, y2 = x1 + width, y1 + height
-            cropped_face = frame[y1:y2, x1:x2, :]
-            # cv2.imshow(f"Deteccao", cropped_face)
-            # cv2.waitKey(0)
+    if boxes is not None and scores is not None:
+        boxes = boxes[np.where(scores > 0.6)]
+        scores = scores[np.where(scores > 0.6)]
+        # detections = face_detector.detect(frame)
+        # detections = detections[np.where(detections[:, 4] > 0.5)]
+        print('Detected_FaceNum: %d' % len(boxes))
 
-            feature = face_recognition.describe(cropped_face)
-            name, prob = face_classifier.classify(feature)
+        if len(boxes) > 0:
+            for x1, y1, x2, y2 in boxes:
+                if x2-x1 < 30 or y2-y1 < 30:
+                    continue
 
-            cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+                cropped_face = frame[y1:y2, x1:x2, :]
+                # cv2.imshow(f"Deteccao", cropped_face)
+                # cv2.waitKey(0)
 
-            # plot result idx under box
-            text_x = x1-10
-            text_y = y2 + 15
+                pre_processed_face = face_detector.pre_process(cropped_face)
 
-            cv2.putText(frame, f"{name}\n({prob})", (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 0, 255),
-                        thickness=1, lineType=2)
-    else:
-        print('Unable to align')
+                if pre_processed_face is None:
+                    continue
+
+                feature = face_recognition.describe(pre_processed_face)
+                name = face_classifier.classify(feature)
+
+                cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+                # plot result idx under box
+                text_x = x1-10
+                text_y = y2 + 15
+
+                cv2.putText(frame, f"{name}", (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 0, 255),
+                            thickness=1, lineType=2)
+        else:
+            print('Unable to align')
 
     sec = curTime - prevTime
     prevTime = curTime
