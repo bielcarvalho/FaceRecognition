@@ -14,6 +14,8 @@ MTCNN Article: https://arxiv.org/pdf/1604.02878
 Facenet Git: https://github.com/timesler/facenet-pytorch<br>
 Facenet Article: https://arxiv.org/abs/1503.03832
 
+------ Ver https://pytorch.org/get-started/locally/ para instacao do pytorch
+
 ## Pipeline
 Image -> FaceDetection -> CroppedFace -> FaceEmbeddings -> Descriptor(512D) -> FaceClassifier -> Name
 
