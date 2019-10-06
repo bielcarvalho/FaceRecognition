@@ -10,7 +10,7 @@ Article: https://arxiv.org/abs/1512.02325
 MTCNN Git: https://github.com/timesler/facenet-pytorch<br>
 MTCNN Article: https://arxiv.org/pdf/1604.02878
 
-##### Descriptor resnet treinado com banco de imagens VGGFace2: 
+##### Descriptor facenet treinado com banco de imagens VGGFace2: 
 Facenet Git: https://github.com/timesler/facenet-pytorch<br>
 Facenet Article: https://arxiv.org/abs/1503.03832
 
