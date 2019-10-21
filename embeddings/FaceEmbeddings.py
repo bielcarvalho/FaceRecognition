@@ -23,5 +23,5 @@ class FaceEmbeddings:
         tensor_arr = self.resnet(image.unsqueeze(0))[0]
         if not to_numpy:
             return tensor_arr
-        np_arr = tensor_arr.numpy()
+        np_arr = torch.Tensor.cpu(tensor_arr).numpy()
         return np_arr

@@ -5,3 +5,4 @@ venv
 .vs
 .vscode
 .idea
+/classifier/random_forest_classifier.pkl

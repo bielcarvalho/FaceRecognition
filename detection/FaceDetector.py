@@ -14,14 +14,14 @@ class FaceDetector:
     def __init__(self):
         torch.set_grad_enabled(False)
         cudnn.benchmark = True
+        self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         self.mtcnn = MTCNN(
             image_size=input_image_size, min_face_size=30, prewhiten=True, select_largest=True,
-            device=torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
+            device=self.device
         )
         # self.detector = MTCNN()
 
-    @staticmethod
-    def pre_process(image):
+    def pre_process(self, image):
         """
         Redimensiona e preprocessa imagem para extracao de features
         :param image: imagem do cv2
@@ -31,7 +31,7 @@ class FaceDetector:
             image = cv2.resize(image, (input_image_size, input_image_size), interpolation=cv2.INTER_AREA)
         except cv2.error:
             return None
-        img_tensor = functional.to_tensor(np.float32(image))
+        img_tensor = functional.to_tensor(np.float32(image)).to(self.device)
         return prewhiten(img_tensor)
         # face = F.to_tensor(np.float32(face))
 

@@ -25,7 +25,7 @@ while True:
     # if not ret:
     #     break
 
-    # frame = cv2.resize(frame, (750, 750), fx=1, fy=1)  # resize frame (optional)
+    frame = cv2.resize(frame, (0, 0), fx=1, fy=1)  # resize frame (optional)
     curTime = time.time()  # calc fps
 
     frame = frame[:, :, 0:3]
@@ -54,15 +54,15 @@ while True:
                     continue
 
                 feature = face_recognition.describe(pre_processed_face)
-                name = face_classifier.classify(feature)
+                name, prob = face_classifier.classify(feature)
 
                 cv2.rectangle(frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
 
                 # plot result idx under box
-                text_x = x1-10
+                text_x = x1-5
                 text_y = y2 + 15
 
-                cv2.putText(frame, f"{name}", (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 0, 255),
+                cv2.putText(frame, f"{name} ({prob})", (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 0, 255),
                             thickness=1, lineType=2)
         else:
             print('Unable to align')
@@ -71,6 +71,7 @@ while True:
     prevTime = curTime
     fps = 1 / sec
     fps_str = 'FPS: %2.3f' % fps
+    print(fps_str)
     text_fps_x = len(frame[0]) - 150
     text_fps_y = 20
     cv2.putText(frame, fps_str, (text_fps_x, text_fps_y), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 0, 0),

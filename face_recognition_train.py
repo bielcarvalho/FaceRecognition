@@ -195,11 +195,11 @@ def get_feature_vector(person_name, img_number):
     try:
         return embeddings_df.loc[(person_name, img_number)].values
     except KeyError as kerr:
-        print(kerr)
+        tqdm.write(kerr)
         return None
     except TypeError as terr:
         print(terr)
-        print(f"ID desejado: {person_name}; Img: {img_number}")
+        tqdm.write(f"ID desejado: {person_name}; Img: {img_number}")
         return None
 
 
@@ -214,8 +214,8 @@ def get_random_images(images_per_person):
     X = np.zeros(((images_per_person * len(people_list)), vector_size))
     Y = [[None] for x in range(images_per_person * len(people_list))]
 
-    tqdm.write(f"\n{len(people_list)} com mais de {images_per_person} imagens")
-    progress_bar = tqdm(total=(images_per_person * len(people_list)), unit="imagens")
+    tqdm.write(f"\n{len(people_list)} pessoas com mais de {images_per_person} imagens")
+    progress_bar = tqdm(total=(images_per_person * len(people_list)), desc="Sampling", unit="imagens")
 
     saved_images_idx = 0
     for row in people_list:
@@ -259,12 +259,13 @@ def main():
                     help="quantidade de sets para divisao dos dados, sendo 1 set para teste e o restante "
                          "para treinamento (para realizar apenas treinamento, colocar 1)")
     ap.add_argument("-ipp", "--images_per_person", type=int, default=20,
-                    help="quantidade de imagens para cada pessoa")
-    ap.add_argument("-pt", "--parameter_tuning", type=bool, default=True,
+                    help="quantidade de imagens para cada pessoa (valor total que sera dividido entre os sets")
+    ap.add_argument("-pt", "--parameter_tuning", default=False, action='store_true',
                     help="otimizacao dos hiperparametros dos classificadores")
     ap.add_argument("-kf", "--kfold", type=bool, default=False,
                     help="realizar testes com k-fold (automatico para parameter_tuning)")
-    ap.add_argument("-down", "--download", type=bool, default=False, help="download do banco de imagens lfw")
+    ap.add_argument("-down", "--download", default=False, action='store_true',
+                    help="download do banco de imagens lfw")
     args = vars(ap.parse_args())
 
     input_folder = args["input_dir"]
@@ -296,10 +297,10 @@ def main():
     for model in classifiers:
         print("Training Model {}".format(model))
         face_classifier.train(X, Y, model=model, num_sets=args["num_sets"], k_fold=args["kfold"],
-                              hyperparameter_tuning=args["parameter_tuning"],
+                              parameter_tuning=args["parameter_tuning"],
+                              save_model_path=f'./classifier/{model}_classifier.pkl',
                               images_per_person=args["images_per_person"],
-                              num_people=num_people,
-                              save_model_path=f'./classifier/{model}_classifier.pkl')
+                              num_people=num_people)
 
 
 if __name__ == "__main__":
