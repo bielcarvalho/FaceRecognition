@@ -1,3 +1,6 @@
+from typing import Union
+
+import numpy as np
 import torch
 from facenet_pytorch.models.inception_resnet_v1 import InceptionResnetV1
 
@@ -12,7 +15,7 @@ class FaceEmbeddings:
     def get_embedding_size(self):
         return self.embedding_size
 
-    def describe(self, image, to_numpy=True):
+    def describe(self, image: Union[np.ndarray, torch.tensor], to_numpy: bool = True):
         """
         Extrai um array de 512-features da imagem facial recebida
         :rtype: numpy.ndarray ou torch.tensor
@@ -20,7 +23,7 @@ class FaceEmbeddings:
         :param to_numpy: if True converte o array de features para numpy.ndarray
         :return: array de 512-features
         """
-        tensor_arr = self.resnet(image.unsqueeze(0))[0]
+        tensor_arr = self.resnet(image.unsqueeze(0).to(self.device))[0]
         if not to_numpy:
             return tensor_arr
         np_arr = torch.Tensor.cpu(tensor_arr).numpy()

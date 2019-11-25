@@ -12,7 +12,7 @@ model = input("Choose a model> ")
 
 face_detector = FaceDetector()
 face_recognition = FaceEmbeddings()
-face_classifier = FaceClassifier(f'./classifier/{model.lower()}_classifier.pkl')
+face_classifier = FaceClassifier(model_name=model)
 
 video_capture = cv2.VideoCapture(0)
 prevTime = 0
@@ -62,8 +62,17 @@ while True:
                 text_x = x1-5
                 text_y = y2 + 15
 
-                cv2.putText(frame, f"{name} ({prob})", (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1, (0, 0, 255),
-                            thickness=1, lineType=2)
+
+                def legenda(text: str):
+                    cv2.putText(frame, text, (text_x, text_y), cv2.FONT_HERSHEY_COMPLEX_SMALL, 1,
+                                (0, 0, 255), thickness=1, lineType=2)
+
+                if prob >= 0.25:
+                    legenda(f"{name} ({prob})")
+
+                else:
+                    legenda(f"Desconhecido")
+
         else:
             print('Unable to align')
 

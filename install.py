@@ -9,7 +9,11 @@ def pip_install(package: Union[str, list]) -> None:
     """
     Efetua chamada para fazer instalar com pip o que foi recebido em package
     """
-    cmd = ["pip", "install"]
+    if platform.system().lower() == "windows":
+        # assegurar instalacao no venv em uso
+        cmd = ["python", "-m", "pip", "install"]
+    else:
+        cmd = ["pip3", "install"]
     if type(package) == str:
         # formato necessario para subprocess
         package = package.split(" ")
@@ -40,7 +44,7 @@ if __name__ == "__main__":
         py_torch_install("", "")
 
     elif win_cuda("9.2") or linux_cuda("9.2"):
-        py_torch_install(end="'+cu92'")
+        py_torch_install(end="+cu92")
 
     elif win_cuda("10.1"):
         py_torch_install()
@@ -49,7 +53,7 @@ if __name__ == "__main__":
         if os.path.exists("/usr/local/cuda/version.txt") or (op_sys == "windows" and os.getenv("CUDA_PATH")):
             print("Instalando versao do PyTorch sem uso do CUDA toolkit, atualize seu CUDA para usa-lo no PyTorch")
 
-        py_torch_install(end="'+cpu'")
+        py_torch_install(end="+cpu")
 
     # Instalacao de requisitos ausentes
     pip_install(["-r", os.path.abspath("./requirements.txt")])
