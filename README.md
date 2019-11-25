@@ -1,10 +1,6 @@
-# Tensorflow Face Recognition
+# PyTorch Face Recognition
 
 ### Based on
-
-##### Original Detector (SSD):
-Git: https://github.com/hschao/face-recognition<br>
-Article: https://arxiv.org/abs/1512.02325
 
 ##### Detector MTCNN:
 MTCNN Git: https://github.com/timesler/facenet-pytorch<br>
@@ -14,7 +10,7 @@ MTCNN Article: https://arxiv.org/pdf/1604.02878
 Facenet Git: https://github.com/timesler/facenet-pytorch<br>
 Facenet Article: https://arxiv.org/abs/1503.03832
 
------- Ver https://pytorch.org/get-started/locally/ para instacao do pytorch
+----- Utilizar install.py para instalar PyTorch com PIP
 
 ## Pipeline
 Image -> FaceDetection -> CroppedFace -> FaceEmbeddings -> Descriptor(512D) -> FaceClassifier -> Name
