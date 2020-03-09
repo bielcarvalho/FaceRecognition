@@ -50,6 +50,6 @@ A execução de face_recognition_train.py aceita diversos parâmetros de entrada
 2. ESLER, T. Face Recognition Using Pytorch. Disponível em: https://github.com/timesler/facenet-pytorch.
 3. HEAD, T. et al. Scikit-optimize. Scikit-optimize, v0.5.2,  2018. https://doi.org/10.5281/zenodo.1207017. Disponível em: https://github.com/scikit-optimize/scikit-optimize. 
 4. PEDREGOSA, F. et al. Scikit-learn: Machine Learning in Python. Journal of Machine Learning Research, v. 12, p. 2825–2830, 2011. Disponível em: https://github.com/scikit-learn/scikit-learn. 
-5. SANDBERG, D. Face Recognition using Tensorflow Build Status. Disponível em: https://github.com/davidsandberg/facenet.
+5. SANDBERG, D. Face Recognition using Tensorflow. Disponível em: https://github.com/davidsandberg/facenet.
 6. SCHROFF, F.; KALENICHENKO, D.; PHILBIN, J. FaceNet: A Unified Embedding for Face Recognition and Clustering. 2015. arXiv:1503.03832. Disponível em: https://arxiv.org/abs/1503.03832.
 7. ZHANG, K.; ZHANG, Z.; LI, Z.; QIAO, Y. Joint Face Detection and Alignment Using Multitask Cascaded Convolutional Networks. IEEE Signal Processing Letters, 2016. Disponível em: https://arxiv.org/pdf/1604.02878.
